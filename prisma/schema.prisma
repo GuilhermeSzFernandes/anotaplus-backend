@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EntryType {
+  GASTO
+  PENSAMENTO
+}
+
+model User {
+  id        String   @id @default(uuid())
+  googleId  String   @unique
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+
+  categories Category[]
+  entries    Entry[]
+
+  @@map("users")
+}
+
+model Category {
+  id     String @id @default(uuid())
+  nome   String
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, nome])
+  @@map("categories")
+}
+
+model Entry {
+  id        String    @id @default(uuid())
+  type      EntryType
+  texto     String
+  valor     Float?
+  categoria String?
+  timestamp DateTime
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, timestamp])
+  @@map("entries")
+}
