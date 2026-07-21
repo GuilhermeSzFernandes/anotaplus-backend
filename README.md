@@ -14,9 +14,10 @@ Backend NestJS + Prisma pro backup na nuvem do [Anota+](https://github.com/Guilh
 
 ## Endpoints
 
-- `POST /auth/google` — body `{ "idToken": "..." }`, devolve `{ accessToken, user }`
-- `GET /entries`, `POST /entries`, `PATCH /entries/:id`, `DELETE /entries/:id` — protegidos por `Authorization: Bearer <accessToken>`. `PATCH` recebe o mesmo corpo do `POST` (substitui o registro inteiro, não é patch parcial) e usa `updateMany({ where: { id, userId } })` — mesmo truque do `DELETE`, embute o dono na query em vez de um `findUnique` + checagem separada
-- `GET /categories`, `POST /categories`, `DELETE /categories/:id` — idem. `POST /categories` é `upsert` (por `userId` + `nome`, a constraint única) em vez de `create` puro — o app Android sincroniza a mesma categoria mais de uma vez (ex: categorias padrão que já existem), então precisa ser idempotente
+- `POST /auth/google` — body `{ "idToken": "..." }`, devolve `{ accessToken, user }` (`user.pro` reflete `proAtivo` no momento do login, pro app já saber se pode oferecer backup sem precisar de outra chamada)
+- `GET /entries`, `POST /entries`, `PATCH /entries/:id`, `DELETE /entries/:id` — protegidos por `Authorization: Bearer <accessToken>` **e** por assinatura PRO ativa (`ProActiveGuard`, 403 se `proAtivo` for `false`). `PATCH` recebe o mesmo corpo do `POST` (substitui o registro inteiro, não é patch parcial) e usa `updateMany({ where: { id, userId } })` — mesmo truque do `DELETE`, embute o dono na query em vez de um `findUnique` + checagem separada
+- `GET /categories`, `POST /categories`, `DELETE /categories/:id` — idem (`Authorization` + PRO). `POST /categories` é `upsert` (por `userId` + `nome`, a constraint única) em vez de `create` puro — o app Android sincroniza a mesma categoria mais de uma vez (ex: categorias padrão que já existem), então precisa ser idempotente
+- `POST /billing/sync` — body `{ productId, purchaseToken, active }`, protegido só por `Authorization` (não por `ProActiveGuard`, óbvio — é esse endpoint que ativa o PRO). O app chama isso sempre que consulta o Play Billing localmente (no login, ao abrir o app, depois de comprar/cancelar) e reporta o que encontrou. **Não verifica o `purchaseToken` contra a API do Google Play Developer** (precisaria de uma service account com Android Publisher API, que ainda não existe) — confia no que o app relata. Gap conhecido: um app adulterado poderia mandar `active: true` sem ter comprado nada
 
 ## Deploy no Render
 
@@ -29,4 +30,4 @@ Backend NestJS + Prisma pro backup na nuvem do [Anota+](https://github.com/Guilh
 
 - O app Android já sincroniza dos dois lados: push (local → nuvem, um item por vez via `POST /entries`/`POST /categories`) e restore (nuvem → local, via `GET /entries`/`GET /categories`, útil pra reinstalar/trocar de aparelho) — ver `SyncManager.kt`/`SyncWorker.kt` no repo do app. Não existe endpoint de upload/download em lote ainda (um item por chamada).
 - Sincronização de verdade entre múltiplos aparelhos ao mesmo tempo, com resolução de conflito — hoje é só backup/restore unidirecional, sem lidar com edição simultânea em dois lugares.
-- Modelo de assinatura (`Subscription`) e verificação de recibo do Google Play Billing, pra gatear o backup atrás do plano pago — hoje qualquer usuário logado tem backup liberado, sem checar plano nenhum.
+- Verificar o `purchaseToken` do `POST /billing/sync` contra a API do Google Play Developer (`purchases.subscriptions.get`), em vez de confiar no que o app relata — precisa de uma service account do Google Cloud com acesso à Android Publisher API, vinculada no Play Console (Configurações > Acesso à API).

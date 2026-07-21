@@ -1,10 +1,13 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ProActiveGuard } from '../auth/pro-active.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 
-@UseGuards(JwtAuthGuard)
+// Backup na nuvem (todo esse controller) é exclusivo do plano PRO — ver
+// EntriesController.
+@UseGuards(JwtAuthGuard, ProActiveGuard)
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}

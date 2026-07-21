@@ -19,6 +19,16 @@ model User {
   name      String?
   createdAt DateTime @default(now())
 
+  // Assinatura PRO (Google Play Billing) — backup na nuvem só funciona
+  // com proAtivo = true (ver ProGuard, aplicado em EntriesController e
+  // CategoriesController). Campos direto no User em vez de uma tabela
+  // Subscription separada porque só existe uma assinatura por usuário de
+  // cada vez, sem histórico — não precisa de outra entidade pra isso.
+  proAtivo         Boolean   @default(false)
+  proProductId     String?
+  proPurchaseToken String?
+  proAtualizadoEm  DateTime?
+
   categories Category[]
   entries    Entry[]
 

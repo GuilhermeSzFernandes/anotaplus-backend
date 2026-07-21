@@ -26,7 +26,10 @@ export class AuthService {
     });
 
     const accessToken = await this.jwt.signAsync({ sub: user.id });
-    return { accessToken, user: { id: user.id, email: user.email, name: user.name } };
+    return {
+      accessToken,
+      user: { id: user.id, email: user.email, name: user.name, pro: user.proAtivo },
+    };
   }
 
   // O Web Client ID é o "audience" esperado no token — o app Android pede
