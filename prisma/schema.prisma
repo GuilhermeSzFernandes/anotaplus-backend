@@ -48,6 +48,9 @@ model Category {
 model Entry {
   id        String    @id @default(uuid())
   type      EntryType
+  // Só usado por Ideia (a tela "bloco de notas", separada da Captura
+  // Rápida) — Gasto e Ideia via gesto continuam sem título, null.
+  titulo    String?
   texto     String
   valor     Float?
   categoria String?

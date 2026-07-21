@@ -5,6 +5,10 @@ export class CreateEntryDto {
   @IsEnum(EntryType)
   type: EntryType;
 
+  @IsOptional()
+  @IsString()
+  titulo?: string;
+
   @IsString()
   texto: string;
 
