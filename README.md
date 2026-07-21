@@ -15,7 +15,7 @@ Backend NestJS + Prisma pro backup na nuvem do [Anota+](https://github.com/Guilh
 ## Endpoints
 
 - `POST /auth/google` — body `{ "idToken": "..." }`, devolve `{ accessToken, user }`
-- `GET /entries`, `POST /entries`, `DELETE /entries/:id` — protegidos por `Authorization: Bearer <accessToken>`
+- `GET /entries`, `POST /entries`, `PATCH /entries/:id`, `DELETE /entries/:id` — protegidos por `Authorization: Bearer <accessToken>`. `PATCH` recebe o mesmo corpo do `POST` (substitui o registro inteiro, não é patch parcial) e usa `updateMany({ where: { id, userId } })` — mesmo truque do `DELETE`, embute o dono na query em vez de um `findUnique` + checagem separada
 - `GET /categories`, `POST /categories`, `DELETE /categories/:id` — idem. `POST /categories` é `upsert` (por `userId` + `nome`, a constraint única) em vez de `create` puro — o app Android sincroniza a mesma categoria mais de uma vez (ex: categorias padrão que já existem), então precisa ser idempotente
 
 ## Deploy no Render

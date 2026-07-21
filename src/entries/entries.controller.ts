@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { EntriesService } from './entries.service';
@@ -17,6 +17,15 @@ export class EntriesController {
   @Post()
   create(@CurrentUser() userId: string, @Body() dto: CreateEntryDto) {
     return this.entriesService.create(userId, dto);
+  }
+
+  @Patch(':id')
+  update(
+    @CurrentUser() userId: string,
+    @Param('id') id: string,
+    @Body() dto: CreateEntryDto,
+  ) {
+    return this.entriesService.update(userId, id, dto);
   }
 
   @Delete(':id')
