@@ -27,6 +27,6 @@ Backend NestJS + Prisma pro backup na nuvem do [Anota+](https://github.com/Guilh
 
 ## O que ainda falta (próximos passos)
 
-- O app Android já sincroniza (push local → nuvem, um item por vez via `POST /entries`/`POST /categories`, ver `SyncManager.kt`/`SyncWorker.kt` no repo do app) — mas ainda **não existe pull/restore** (baixar do backend pro app, útil pra reinstalar/trocar de aparelho) nem endpoint de upload em lote.
-- Sincronização de verdade entre múltiplos aparelhos ao mesmo tempo, com resolução de conflito — hoje é só backup unidirecional.
+- O app Android já sincroniza dos dois lados: push (local → nuvem, um item por vez via `POST /entries`/`POST /categories`) e restore (nuvem → local, via `GET /entries`/`GET /categories`, útil pra reinstalar/trocar de aparelho) — ver `SyncManager.kt`/`SyncWorker.kt` no repo do app. Não existe endpoint de upload/download em lote ainda (um item por chamada).
+- Sincronização de verdade entre múltiplos aparelhos ao mesmo tempo, com resolução de conflito — hoje é só backup/restore unidirecional, sem lidar com edição simultânea em dois lugares.
 - Modelo de assinatura (`Subscription`) e verificação de recibo do Google Play Billing, pra gatear o backup atrás do plano pago — hoje qualquer usuário logado tem backup liberado, sem checar plano nenhum.
