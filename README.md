@@ -16,7 +16,7 @@ Backend NestJS + Prisma pro backup na nuvem do [Anota+](https://github.com/Guilh
 
 - `POST /auth/google` — body `{ "idToken": "..." }`, devolve `{ accessToken, user }`
 - `GET /entries`, `POST /entries`, `DELETE /entries/:id` — protegidos por `Authorization: Bearer <accessToken>`
-- `GET /categories`, `POST /categories`, `DELETE /categories/:id` — idem
+- `GET /categories`, `POST /categories`, `DELETE /categories/:id` — idem. `POST /categories` é `upsert` (por `userId` + `nome`, a constraint única) em vez de `create` puro — o app Android sincroniza a mesma categoria mais de uma vez (ex: categorias padrão que já existem), então precisa ser idempotente
 
 ## Deploy no Render
 
@@ -27,6 +27,6 @@ Backend NestJS + Prisma pro backup na nuvem do [Anota+](https://github.com/Guilh
 
 ## O que ainda falta (próximos passos)
 
-- Endpoint de sync de verdade (hoje `POST /entries` só cria um registro novo; ainda não há upload em lote nem resolução de conflito entre dispositivos).
-- Modelo de assinatura (`Subscription`) e verificação de recibo do Google Play Billing, pra gatear o backup atrás do plano pago.
-- Lado Android: tela de login com Google (Credential Manager), chamada pro `POST /auth/google`, e guardar o `accessToken` retornado.
+- O app Android já sincroniza (push local → nuvem, um item por vez via `POST /entries`/`POST /categories`, ver `SyncManager.kt`/`SyncWorker.kt` no repo do app) — mas ainda **não existe pull/restore** (baixar do backend pro app, útil pra reinstalar/trocar de aparelho) nem endpoint de upload em lote.
+- Sincronização de verdade entre múltiplos aparelhos ao mesmo tempo, com resolução de conflito — hoje é só backup unidirecional.
+- Modelo de assinatura (`Subscription`) e verificação de recibo do Google Play Billing, pra gatear o backup atrás do plano pago — hoje qualquer usuário logado tem backup liberado, sem checar plano nenhum.

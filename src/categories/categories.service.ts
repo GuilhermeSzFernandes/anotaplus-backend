@@ -13,8 +13,16 @@ export class CategoriesService {
     });
   }
 
+  // upsert em vez de create: o app manda a mesma categoria de novo toda
+  // vez que sincroniza (ex: categorias padrão já existentes), então isso
+  // precisa ser idempotente em vez de estourar a constraint única de
+  // userId+nome numa segunda tentativa.
   create(userId: string, dto: CreateCategoryDto) {
-    return this.prisma.category.create({ data: { nome: dto.nome, userId } });
+    return this.prisma.category.upsert({
+      where: { userId_nome: { userId, nome: dto.nome } },
+      update: {},
+      create: { nome: dto.nome, userId },
+    });
   }
 
   remove(userId: string, id: string) {
