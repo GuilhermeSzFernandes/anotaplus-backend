@@ -38,6 +38,9 @@ model User {
 model Category {
   id     String @id @default(uuid())
   nome   String
+  // Limite mensal de gasto pra essa categoria (feature de orçamento,
+  // PRO-only) — null enquanto o usuário não define um.
+  limite Float?
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
