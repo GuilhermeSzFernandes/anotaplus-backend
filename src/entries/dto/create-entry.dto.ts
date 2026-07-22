@@ -20,6 +20,10 @@ export class CreateEntryDto {
   @IsString()
   categoria?: string;
 
+  @IsOptional()
+  @IsString()
+  carteira?: string;
+
   @IsDateString()
   timestamp: string;
 }

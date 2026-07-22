@@ -10,6 +10,7 @@ datasource db {
 enum EntryType {
   GASTO
   PENSAMENTO
+  RECEBIMENTO
 }
 
 model User {
@@ -30,6 +31,7 @@ model User {
   proAtualizadoEm  DateTime?
 
   categories Category[]
+  carteiras  Carteira[]
   entries    Entry[]
 
   @@map("users")
@@ -48,6 +50,18 @@ model Category {
   @@map("categories")
 }
 
+// Forma de pagamento/conta (VR, Cartão X...) — mesmo padrão de Category,
+// mas sem limite, aplicável em Gasto e Recebimento.
+model Carteira {
+  id     String @id @default(uuid())
+  nome   String
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, nome])
+  @@map("carteiras")
+}
+
 model Entry {
   id        String    @id @default(uuid())
   type      EntryType
@@ -57,6 +71,7 @@ model Entry {
   texto     String
   valor     Float?
   categoria String?
+  carteira  String?
   timestamp DateTime
   userId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
